@@ -15,8 +15,18 @@ const jwt = require('jsonwebtoken')
 // 4. Send back token
 //////////////////////////////////////////////////////////////////////////////
 
-function login(req, res, next){
+function login(req, res, next) {
 
+  if (!req.body.username) return next({ status: 400, message: 'Bad Request' })
+  if (!req.body.password) return next({ status: 400, message: 'Bad Request' })
+
+  authModel.login(req.body.username, req.body.password)
+    .then(user => {
+      const token = jwt.sign({ id: user.id }, process.env.SECRET)
+
+      return res.status(200).json({token})
+    })
+    .catch(next)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,7 +37,7 @@ function isAuthenticated(req, res, next){
   if(!req.header.authorization){
     return next({ status: 401, message: 'Unauthorized' })
   }
-  
+
   const [scheme, credentials] = req.headers.authorization.split(' ')
 
   jwt.verify(credentials, process.env.SECRET, (err, payload)=>{

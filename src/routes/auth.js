@@ -6,8 +6,7 @@ const authController = require('../controllers/auth')
 // Basic CRUD Methods
 //////////////////////////////////////////////////////////////////////////////
 
-router.post('/login', authController.login)
-
+router.post('/token', authController.login)
 
 
 module.exports = router
