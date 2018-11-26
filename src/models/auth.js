@@ -30,15 +30,14 @@ function login(username, password){
     user = data
 
     // 2. compare password in the database with the password provided by user
-    return bcrypt.compare(password, data.password)
+    return bcrypt.compare(password, data.password) // returns true or false "Status"
   })
-  .catch(bcrypt.MISMATCH_ERROR, function(){
-    // 3. If the passwords do not match, respond with 401 Unauthorized
-    throw { status: 401, message: "Unauthorized"}
-  })
-  .then(function(){
+  .then(function (status) {
+    if (!status) throw { status: 401, message: "Unauthorized"} // if status is false
+
     // 4. strip hashed password away from object
     delete user.password
+
     // 5. "return/continue" promise
     return user
   })
