@@ -1,5 +1,5 @@
 const db = require('../../db')
-const bcrypt = require('bcrypt-as-promised')
+const bcrypt = require('bcrypt')
 
 //////////////////////////////////////////////////////////////////////////////
 // Basic CRUD Methods
@@ -25,8 +25,22 @@ function getOneByUserName(username){
 //////////////////////////////////////////////////////////////////////////////
 
 function create(username, password){
-
-
+  return getOneByUserName(username)
+    .then(data => {
+      if (data) throw { status: 400, message: 'User already exists' }
+      return bcrypt.hash(password, 10)
+    })
+    .then(hashedPassword => {
+      return (
+        db('users')
+          .insert({ username, password: hashedPassword })
+          .returning('*')
+      )
+    })
+    .then(([data]) => {
+      delete data.password
+      return data
+    })
 }
 
 module.exports = {
