@@ -1,5 +1,5 @@
 const db = require('../../db')
-const bcrypt = require('bcrypt-as-promised')
+const bcrypt = require('bcrypt')
 
 //////////////////////////////////////////////////////////////////////////////
 // Basic CRUD Methods
@@ -32,7 +32,7 @@ function create(username, password){
     // if user already exists, return 400
     if(data) throw { status: 400, message:'User already exists'}
 
-    // hash password
+    // hash password - grabs clear text password and transforms it into a hash
     return bcrypt.hash(password, 10)
   })
   .then(function(hashedPassword){
@@ -41,10 +41,10 @@ function create(username, password){
     return (
       db('users')
       .insert({ username, password: hashedPassword })
-      .returning('*')
+      .returning('*') // returns the row of username and password that was created
     )
   })
-  .then(function([ data ]){
+  .then(function([ data ]){ //ES6 deconstruction to grab the first item data[0]
     // 4. strip hashed password away from object
     delete data.password
     // 5. "return/continue" promise
